@@ -4,19 +4,29 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class DistanceAudioZone : MonoBehaviour
 {
-    public GameObject wand;
+    public GameObject wand1;
+    public GameObject wand2;
     public AudioClip audioClip;
     public float activationRadius = 1.0f;
 
     public Color inactiveColor = Color.blue;
     public Color activeColor = Color.green;
+    public Color overlapColor = Color.red;
 
     public float playDuration = 20f;
+    public float normalVolume = 1.0f;
+    public float overlapVolume = 2.0f;
 
     private AudioSource audioSource;
     private Renderer rend;
     private bool wasActive = false;
     private bool isPlayingTimed = false;
+    private bool overlapMode = false;
+
+    public bool IsPlayingTimed
+    {
+        get { return isPlayingTimed; }
+    }
 
     void Start()
     {
@@ -43,7 +53,7 @@ public class DistanceAudioZone : MonoBehaviour
         audioSource.clip = audioClip;
         audioSource.playOnAwake = false;
         audioSource.loop = false;
-        audioSource.volume = 1.0f;
+        audioSource.volume = normalVolume;
         audioSource.spatialBlend = 0.0f;
 
         if (rend != null)
@@ -54,14 +64,31 @@ public class DistanceAudioZone : MonoBehaviour
 
     void Update()
     {
-        if (wand == null)
+        if (wand1 == null && wand2 == null)
         {
-            Debug.LogError(gameObject.name + ": Wand is not assigned");
+            Debug.LogError(gameObject.name + ": Neither wand is assigned");
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, wand.transform.position);
-        bool isActive = dist <= activationRadius;
+        bool isActive = false;
+
+        if (wand1 != null)
+        {
+            float dist1 = Vector3.Distance(transform.position, wand1.transform.position);
+            if (dist1 <= activationRadius)
+            {
+                isActive = true;
+            }
+        }
+
+        if (wand2 != null)
+        {
+            float dist2 = Vector3.Distance(transform.position, wand2.transform.position);
+            if (dist2 <= activationRadius)
+            {
+                isActive = true;
+            }
+        }
 
         if (isActive && !wasActive && !isPlayingTimed)
         {
@@ -77,7 +104,7 @@ public class DistanceAudioZone : MonoBehaviour
 
         if (!isActive && wasActive)
         {
-            if (rend != null && !isPlayingTimed)
+            if (rend != null && !isPlayingTimed && !overlapMode)
             {
                 rend.material.color = inactiveColor;
             }
@@ -90,7 +117,10 @@ public class DistanceAudioZone : MonoBehaviour
     {
         isPlayingTimed = true;
 
-        audioSource.Play();
+        if (audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
 
         yield return new WaitForSeconds(playDuration);
 
@@ -103,6 +133,35 @@ public class DistanceAudioZone : MonoBehaviour
         if (rend != null)
         {
             rend.material.color = inactiveColor;
+        }
+
+        audioSource.volume = normalVolume;
+        overlapMode = false;
+    }
+
+    public void SetOverlapMode(bool isOverlapping)
+    {
+        overlapMode = isOverlapping;
+
+        if (audioSource != null)
+        {
+            audioSource.volume = isOverlapping ? overlapVolume : normalVolume;
+        }
+
+        if (rend != null)
+        {
+            if (isOverlapping && isPlayingTimed)
+            {
+                rend.material.color = overlapColor;
+            }
+            else if (isPlayingTimed)
+            {
+                rend.material.color = activeColor;
+            }
+            else
+            {
+                rend.material.color = inactiveColor;
+            }
         }
     }
 }
