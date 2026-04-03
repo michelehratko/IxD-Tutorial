@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 5c0eda14e59138b408aec20d74eae2ee
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - ripplePrefab: {fileID: 6390515476872331727, guid: 38af87e3ca0be7449b6593a127c0a52d, type: 3}
+  - bubblePrefab: {fileID: 8106535092916014936, guid: 1041c5896198fcc4b9a8cbf261e5f175, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

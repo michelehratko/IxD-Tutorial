@@ -23,6 +23,10 @@ public class DistanceAudioZone : MonoBehaviour
     private bool isPlayingTimed = false;
     private bool overlapMode = false;
 
+    public spawn rippleSpawner;
+    public SignalConvergenceCoordinator convergenceCoordinator;
+    public float rippleStrength = 1f;
+
     public bool IsPlayingTimed
     {
         get { return isPlayingTimed; }
@@ -60,6 +64,15 @@ public class DistanceAudioZone : MonoBehaviour
         {
             rend.material.color = inactiveColor;
         }
+        if (rippleSpawner == null)
+        {
+            rippleSpawner = GetComponent<spawn>();
+        }
+
+        if (convergenceCoordinator == null)
+        {
+            convergenceCoordinator = FindFirstObjectByType<SignalConvergenceCoordinator>();
+        }
     }
 
     void Update()
@@ -92,14 +105,24 @@ public class DistanceAudioZone : MonoBehaviour
 
         if (isActive && !wasActive && !isPlayingTimed)
         {
-            Debug.Log(gameObject.name + " ENTERED zone -> start 20s audio");
+        Debug.Log(gameObject.name + " ENTERED zone -> start 20s audio");
 
-            if (rend != null)
-            {
-                rend.material.color = activeColor;
-            }
+        if (rend != null)
+        {
+            rend.material.color = activeColor;
+        }
 
-            StartCoroutine(PlayForDuration());
+        if (rippleSpawner != null)
+        {
+            rippleSpawner.SpawnRipple(rippleStrength);
+        }
+
+        if (convergenceCoordinator != null && rippleSpawner != null)
+        {
+            convergenceCoordinator.RegisterSignal(rippleSpawner);
+        }
+
+        StartCoroutine(PlayForDuration());
         }
 
         if (!isActive && wasActive)
