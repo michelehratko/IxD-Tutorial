@@ -63,55 +63,60 @@ public class DistanceAudioZone : MonoBehaviour
     }
 
     void Update()
+{
+    if (wand1 == null && wand2 == null)
     {
-        if (wand1 == null && wand2 == null)
-        {
-            Debug.LogError(gameObject.name + ": Neither wand is assigned");
-            return;
-        }
-
-        bool isActive = false;
-
-        if (wand1 != null)
-        {
-            float dist1 = Vector3.Distance(transform.position, wand1.transform.position);
-            if (dist1 <= activationRadius)
-            {
-                isActive = true;
-            }
-        }
-
-        if (wand2 != null)
-        {
-            float dist2 = Vector3.Distance(transform.position, wand2.transform.position);
-            if (dist2 <= activationRadius)
-            {
-                isActive = true;
-            }
-        }
-
-        if (isActive && !wasActive && !isPlayingTimed)
-        {
-            Debug.Log(gameObject.name + " ENTERED zone -> start 20s audio");
-
-            if (rend != null)
-            {
-                rend.material.color = activeColor;
-            }
-
-            StartCoroutine(PlayForDuration());
-        }
-
-        if (!isActive && wasActive)
-        {
-            if (rend != null && !isPlayingTimed && !overlapMode)
-            {
-                rend.material.color = inactiveColor;
-            }
-        }
-
-        wasActive = isActive;
+        Debug.LogError(gameObject.name + ": Neither wand is assigned");
+        return;
     }
+
+    Vector2 zonePos = new Vector2(transform.position.x, transform.position.z);
+    bool isActive = false;
+
+    if (wand1 != null)
+    {
+        Vector2 wand1Pos = new Vector2(wand1.transform.position.x, wand1.transform.position.z);
+        float dist1 = Vector2.Distance(zonePos, wand1Pos);
+
+        if (dist1 <= activationRadius)
+        {
+            isActive = true;
+        }
+    }
+
+    if (wand2 != null)
+    {
+        Vector2 wand2Pos = new Vector2(wand2.transform.position.x, wand2.transform.position.z);
+        float dist2 = Vector2.Distance(zonePos, wand2Pos);
+
+        if (dist2 <= activationRadius)
+        {
+            isActive = true;
+        }
+    }
+
+    if (isActive && !wasActive && !isPlayingTimed)
+    {
+        Debug.Log(gameObject.name + " ENTERED zone -> start 20s audio");
+
+        if (rend != null)
+        {
+            rend.material.color = activeColor;
+        }
+
+        StartCoroutine(PlayForDuration());
+    }
+
+    if (!isActive && wasActive)
+    {
+        if (rend != null && !isPlayingTimed)
+        {
+            rend.material.color = inactiveColor;
+        }
+    }
+
+    wasActive = isActive;
+}
 
     IEnumerator PlayForDuration()
     {
